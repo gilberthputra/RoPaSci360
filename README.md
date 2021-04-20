@@ -11,7 +11,7 @@ In part A, as this is single-player there will be following modifications:
 
 To run the program: python3 -m search "test case filename"
 
-*NOTE: More details on the specifications.*
+**NOTE: More details on the specifications.**
 
 ## Part B
 
