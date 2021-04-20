@@ -1,4 +1,5 @@
 # RoPaSci360
+> This is the project for COMP30024 University of Melbourne semester 1 2021.
 
 ## Part A
 Implement a simplified, single-player (non-adversarial), search-based variant of the game.
@@ -12,6 +13,7 @@ In part A, as this is single-player there will be following modifications:
 To run the program: python3 -m search "test case filename"
 
 **NOTE: More details on the specifications.**
+**INFO: Sample-solution provided by @matomatical**
 
 ## Part B
 
