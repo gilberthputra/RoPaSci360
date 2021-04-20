@@ -1,6 +1,0 @@
-{
-    "colour": "red",
-    "pieces": [[0, 0]],
-    "blocks": [[2, -2], [2, -1], [2, 0]],
-    "solution depth": 3
-}
