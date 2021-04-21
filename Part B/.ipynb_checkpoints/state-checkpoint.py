@@ -17,4 +17,4 @@ WHAT_BEATS = {'r': 'p', 'p': 's', 's': 'r'}
 
 class RoPaSci360:
     def __init__(self)
-        upper_tokens: tuple
+    
