@@ -50,17 +50,12 @@ class RoPaSci360(Env):
         self.lower = list()
         self.upper_throws = 9
         self.upper_throws = 9
-        
-        self.done = False
                 
         return self.state
         
     def step(self, action):
         assert self.action_space.contains(action), "ACTION ERROR {}".format(action)
         
-        if action not in self.state._actions(self.player):
-            reward = INVALID_ACTION_REWARD
-            return self.state, reward, self.done, 
         
     def render(self):
         pass
