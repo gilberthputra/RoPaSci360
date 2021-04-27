@@ -40,6 +40,12 @@ class RoPaSci360:
 
         self.game_states = []
 
+        #Potential moves are:
+        # throw, throwing a token onto the board
+        # slide, move a token to an adjacent hex
+        # swing, move a token over an adjacent friendly token
+        self.moves = (('throw', token_type, (r, q)), ('slide', (r0, q0), (r1, q1)), ('swing', (r0, q0), (r1, q1)))
+
     #Checks if the game has ended or not
     def end_game(self):
         #Turn timer
