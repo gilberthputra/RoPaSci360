@@ -44,7 +44,7 @@ class RoPaSci360:
         # throw, throwing a token onto the board
         # slide, move a token to an adjacent hex
         # swing, move a token over an adjacent friendly token
-        self.moves = (('throw', token_type, (r, q)), ('slide', (r0, q0), (r1, q1)), ('swing', (r0, q0), (r1, q1)))
+        #self.moves = (('throw', token_type, (r, q)), ('slide', (r0, q0), (r1, q1)), ('swing', (r0, q0), (r1, q1)))
 
     #Checks if the game has ended or not
     def end_game(self):
@@ -57,24 +57,24 @@ class RoPaSci360:
             self.game_state = 'draw'
             return True
         #Upper is invincible and lower only has one token
-        if self.upper_inv == True and self.tokens_remaining(self, self.lower_tokens) == 1:
+        if self.upper_inv == True and self.tokens_remaining(self.lower_tokens) == 1:
             self.game_state = 'upper'
             return True
         #Lower is invincible and upper only has one token
-        if self.lower_inv == True and self.tokens_remaining(self, self.upper_tokens) == 1:
+        if self.lower_inv == True and self.tokens_remaining(self.upper_tokens) == 1:
             self.game_state = 'lower'
             return True
         #Lower has nothing
-        if self.lower_throws == 0 and self.tokens_remaining(self, self.lower_tokens) == 0:
-            if self.upper_throws > 0 or self.tokens_remaining(self, self.upper_tokens) > 0:
+        if self.lower_throws == 0 and self.tokens_remaining(self.lower_tokens) == 0:
+            if self.upper_throws > 0 or self.tokens_remaining(self.upper_tokens) > 0:
                 self.game_state = 'upper'
                 return True
             else:
                 self.game_state = 'draw'
                 return True
         #Upper has nothing
-        if self.upper_throws == 0 and self.tokens_remaining(self, self.upper_tokens) == 0:
-            if self.lower_throws > 0 or self.tokens_remaining(self, self.lower_tokens) > 0:
+        if self.upper_throws == 0 and self.tokens_remaining(self.upper_tokens) == 0:
+            if self.lower_throws > 0 or self.tokens_remaining(self.lower_tokens) > 0:
                 self.game_state = 'lower'
                 return True
             else:
@@ -142,12 +142,20 @@ class RoPaSci360:
         return results
 
     def slide(self, token):
+        """
+        Input: (symbol, (r, q) = coordinates)
+        Output: (symbol, (r, q) = coordinates)
+        """
         symbol = token[0]
         lctn = token[1]
         nbr = self.neighbours(lctn)
-        return [(symbol, i) for i in nbr]
+        return [(symbol, i) for i in nbr] 
 
     def swing(self, token, player):
+        """
+        Input: (symbol, (r, q) = coordinates)
+        Output: (symbol, (r, q) = coordinates)
+        """
         symbol = token[0]
         lctn = tuple(token[1])
 
@@ -182,6 +190,8 @@ class RoPaSci360:
 
         return throwable
 
+    def possible_actions(self, player):
+        actions = list()
 
 
 
