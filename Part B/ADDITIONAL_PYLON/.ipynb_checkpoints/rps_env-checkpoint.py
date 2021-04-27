@@ -25,7 +25,7 @@ class RoPaSci360(Env):
         #
         # Observation + Action spaces
         # ---------------------------
-        #  Observations: RoPaSci board containing 61 hexes, with 9 types of maximum number of tokens for each player.
+        #  Observations: RoPaSci board containing 61 hexes, with 9 types of maximum number of tokens for  each player.
         #  Actions: (Every board position) * (Every board position)
         #
         # Note: not every action is legal
@@ -50,13 +50,24 @@ class RoPaSci360(Env):
         self.lower = list()
         self.upper_throws = 9
         self.upper_throws = 9
+        
+        self.done = False
                 
         return self.state
         
     def step(self, action):
         assert self.action_space.contains(action), "ACTION ERROR {}".format(action)
         
+        if action not in self.state._actions(self.player):
+            reward = INVALID_ACTION_REWARD
+            return self.state, reward, self.done, self.info
         
+        if self.done:
+            return (self.state, 0.0, True, self.info)
+        if self.move_count > MAX_TURNS:
+            return (self.state, 0.0, True, self.info)
+        
+        reward = VALID_ACTION_REWARD
     def render(self):
         pass
     

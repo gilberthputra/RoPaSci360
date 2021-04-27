@@ -55,7 +55,7 @@ class RoPaSci360:
                       (r - 1, q), (r - 1, q + 1)]
 
         results = filter(self.inbound, neighbours)
-        return results
+        return list(results)
 
     def slide(self, token):
         """
@@ -90,9 +90,8 @@ class RoPaSci360:
         for p in pivot:
             (x, y) = p
             for n in self.neighbours(p):
-                (n1, n2) = n
                 if n != (r, q) and n not in nbr:
-                    pivot_nbr.append(("SLIDE", before, n))
+                    pivot_nbr.append(("SWING", before, n))
         pivot_nbr = list(dict.fromkeys(pivot_nbr))
         return pivot_nbr
 
