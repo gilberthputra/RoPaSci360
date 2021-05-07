@@ -52,6 +52,24 @@ def vulnerable(game, player):
     
     return score
 
+def defend(game, player): pass
+    """
+    The idea is to not move tokens out of throw zone, because that will made it to be harder
+    to defend. When opponent total tokens are equal to player tokens.
+    """
+
+def attack(game, player): pass
+    """
+    The idea is to be aggressive when opponent total tokens is less than player tokens.
+    Go out of the throw zone and just chase enemies down.
+    """
+
+def run(game, player): pass
+    """
+    The idea is to run back from opposing tokens when we have a disadvantage. or even gather
+    together. To defend each other.
+    """
+
 def mid_game(game, player):
     ad = advantage(game, player) * 1.5
     vu = vulnerable(game, player) * -2
