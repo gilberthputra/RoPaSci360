@@ -5,6 +5,8 @@ import typing
 import itertools
 import collections
 
+from copy import deepcopy
+
 #HEX_RANGE = range(-4, +4+1)
 # Create the board and all legal coordinates for RoPaSci360
 #ALL_HEXES = frozenset(
@@ -14,9 +16,10 @@ import collections
 
 BEATS_WHAT = {'r': 's', 'p': 'r', 's': 'p'}
 WHAT_BEATS = {'r': 'p', 'p': 's', 's': 'r'}
-
+SYMBOLS = ('r', 's', 'p')
 MAX_TURNS = 360
 MAX_SAME_CONFIG = 3
+NO_OF_TOKEN = 9
 
 UPPER_BOUND = +4
 LOWER_BOUND = -4
@@ -27,12 +30,23 @@ grid = [(r, q) for r in BOUNDS for q in BOUNDS if -r-q in BOUNDS]
 GAME_STATES = {}
 
 class RoPaSci360:
-    def __init__(self):
+    def __init__(self, player = 'upper'):
         self.upper = list()
         self.lower = list()
 
         self.upper_throws = 9
         self.lower_throws = 9
+
+        self.turn = 0
+        self.game_state = 'running'
+        self.condition = None
+        self.done = False
+
+        self.upper_inv = False
+        self.lower_inv = False
+
+        self.player_1 = player
+        self.player_2 = self.get_other_player()
 
     def inbound(self, location):
         (r, q) = location
@@ -100,11 +114,13 @@ class RoPaSci360:
         for symbol in ("r", "p", "s"):
             if player == 'upper':
                 for coord in grid:
-                    if coord[0] >= (self.upper_throws - 5):
+                    if coord[0] >= (self.upper_throws - 5) and \
+                        self.upper_throws > 0:
                         throwable.append(("THROW", symbol, coord))
             if player == 'lower':
                 for coord in grid:
-                    if coord[0] <= -(self.lower_throws - 5):
+                    if coord[0] <= -(self.lower_throws - 5) and \
+                        self.lower_throws > 0:
                         throwable.append(("THROW", symbol, coord))
         return throwable
 
@@ -123,6 +139,168 @@ class RoPaSci360:
                 actions.extend(self.swing(token, player))
         return actions
 
+    def add(self):
+        if self not in GAME_STATES:
+            GAME_STATES[self] = 1
+        else:
+            GAME_STATES[self] += 1
+
+    def _invincible(self):
+        upper_symbols = {'r': 0, 'p': 0, 's': 0}
+        lower_symbols = {'r': 0, 'p': 0, 's': 0}
+        for token in self.upper:
+            upper_symbols[token[0]] += 1
+        for token in self.lower:
+            lower_symbols[token[0]] += 1
+
+        if self.lower_throws == 0:
+            for token in self.upper:
+                (s, r, q) = token
+                if upper_symbols[s] > 0 and \
+                lower_symbols[WHAT_BEATS[s]] == 0:
+                    self.upper_inv = True
+        if self.upper_throws == 0:
+            for token in self.lower:
+                (s, r, q) = token
+                if lower_symbols[s] > 0 and \
+                upper_symbols[WHAT_BEATS[s]] == 0:
+                    self.lower_inv = True
+
+    def end_game(self):
+        # Condition 1
+        # If lower has nothing
+        if len(self.lower) == 0 and len(self.upper) > 0:
+            if len(self.upper) > 0 or self.upper_throws > 0:
+                self.game_state = 'upper'
+                self.condition = 'C1'
+                return True
+            else:
+                self.game_state = 'draw'
+                self.condition = 'C1'                
+                return True
+        # If upper has nothing
+        if len(self.upper) == 0 and len(self.lower) > 0:
+            if len(self.lower) > 0 or self.lower_throws > 0:
+                self.game_state = 'lower'
+                self.condition = 'C1'
+                return True
+            else:
+                self.game_state = 'draw'
+                self.condition = 'C1'
+                return True
+        # Condition 2 (Both have an invincible token)
+        if self.upper_inv == True and self.lower_inv == True:
+            self.game_state = 'draw'
+            self.condition = 'C2'
+            return True
+        # Condition 3
+        # Upper is invincible and lower only has one token
+        if self.upper_inv == True and len(self.lower) == 1:
+            self.game_state = 'upper'
+            self.condition = 'C3'
+            return True
+        # Lower is invincible and upper only has one token
+        if self.lower_inv == True and len(self.upper) == 1:
+            self.game_state = 'lower'
+            self.condition = 'C3'
+            return True
+        # Condition 4 (Same game configuration for the 3rd time)
+        if MAX_SAME_CONFIG in GAME_STATES.values():
+            self.game_state = 'draw'
+            self.condition = 'C4'
+            return True
+        # Condition 5 (Turn timer)
+        if self.turn >= MAX_TURNS:
+            self.game_state = 'draw'
+            self.condition = 'C5'
+            return True
+
+        return False
+
+    def get_other_player(self):
+        if self.player_1 == 'upper':
+            return 'lower'
+        if self.player_1 == 'lower':
+            return 'upper'
+    
+    def find_token(self, coordinate, player):
+        (x, y) = coordinate
+        if player == 'upper':
+            for (s, r, q) in self.upper:
+                if r == x and q == y:
+                    return (s, r, q)
+        elif player == 'lower':
+            for (s, r, q) in self.lower:
+                if r == x and q == y:
+                    return (s, r, q)
+
+    def read_move(self, move, player):
+        if player == 'upper':
+            pieces = deepcopy(self.upper)
+        elif player == 'lower':
+            pieces = deepcopy(self.lower)
+
+        if move[0] == 'THROW':
+            if player == 'upper':
+                self.upper_throws -= 1
+            elif player == 'lower':
+                self.lower_throws -= 1
+            (atype, s, (r, q)) = move
+            pieces.append((s, r, q))
+        else:
+            (atype, before, after) = move
+            s, r, q = self.find_token(before, player)
+            (x, y) = after
+            pieces.remove((s, r, q))
+            pieces.append((s, x, y))
+        return pieces
+
+    def check_piece(self, p1_piece, p2_piece):
+        p1_c = list()
+        p2_c = list()
+        for t1 in p1_piece:
+            for t2 in p2_piece:
+                if t1[1] == t2[1] and t1[2] == t2[2]:
+                    if WHAT_BEATS[t1[0]] == t2[0]:
+                        p1_c.append((t1, t2))
+                    if WHAT_BEATS[t2[0]] == t1[0]:
+                        p2_c.append((t2, t1))
+        if p1_piece == p2_piece:
+            if p1_c:
+                for i in set(p1_c):
+                    p1_piece.remove(i[0])
+            return p1_piece, p1_piece
+        else:
+            if p1_c:
+                for i in set(p1_c):
+                    p1_piece.remove(i[0])
+            if p2_c:
+                for i in set(p2_c):
+                    p2_piece.remove(i[0])
+            return p1_piece, p2_piece
+
+    def apply_action(self, p1_move, p2_move):
+        p1 = self.read_move(p1_move, self.player_1)
+        p2 = self.read_move(p2_move, self.player_2)
+        p1, p1 = self.check_piece(p1, p1)
+        p2, p2 = self.check_piece(p2, p2)
+        p1, p2 = self.check_piece(p1, p2)
+        return p1, p2
+
+    def update(self, player_1_pieces, player_2_pieces):
+        if self.player_1 == 'upper':
+            self.upper = player_1_pieces
+            self.lower = player_2_pieces
+        elif self.player_1 == 'lower':
+            self.lower = player_1_pieces
+            self.upper = player_2_pieces
+        
+        self.turn += 1
+        self._invincible()
+        self.done = self.end_game()
+        
+
+"""     
 class GameState(RoPaSci360):
     def __init__(self):
         super().__init__()
@@ -202,3 +380,4 @@ class GameState(RoPaSci360):
             return True
 
         return False
+"""
