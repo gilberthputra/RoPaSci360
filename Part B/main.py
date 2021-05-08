@@ -1,7 +1,11 @@
-from state import *
+from ADDITIONAL_PYLON.state import *
 from random import choice
-from heuristic import *
-from SMAB import *
+from ADDITIONAL_PYLON.heuristic import *
+from ADDITIONAL_PYLON.SMAB import *
+from math import inf
+from copy import deepcopy
+
+import time
 
 def main():
     game = RoPaSci360(player = 'upper')
@@ -51,19 +55,30 @@ def main():
                 print("LOWER AFTER", game.lower)
                 print("NO OF TOKENS LOWER", len(game.lower))
                 print("Lower Throws", game.lower_throws)
-                print("\n")
-
-    """    
-    """print(game.game_state) print(game.condition)"""
-
-
+                print("\n") 
+   
+        
+    print(game.game_state) print(game.condition)
+    """ 
+    #start = time.perf_counter()
     for i in range(20):
-        p1_act = game._actions(game.player_1)
-        p2_act = game._actions(game.player_2)
-        c1 = choice(p1_act)
-        c2 = choice(p2_act)
-        p1, p2 = game.apply_action(c1, c2)
-        game.update(p1, p2)
-    SMAB(game, mid_game, alpha = -55, beta = 55,depth = 1)
+        if not game.done:
+            #distribution, action = SMAB(game, mid_game, alpha = -inf, beta = inf, depth = 1)
+            p1_act = game._actions(game.player_1)
+            p2_act = game._actions(game.player_2)
+            c1 = choice(p1_act)
+            c2 = choice(p2_act)
+            p1, p2 = game.apply_action(c1, c2)
+            game.update(p1, p2)
+    #end = time.perf_counter()
+    
+    cost_to_enemy(game, game.player_1)
+    #SMAB_strat(game, mid_game, strat, alpha = -inf, beta = inf,depth = 2)
+    #start = time.perf_counter()
+    #payoff, action = SMAB(game, mid_game, alpha = -inf, beta = inf, depth = 1)
+    #print(payoff)
+    #print(action)
+    #end = time.perf_counter()
+    #print('Time taken:', end - start)
     
 main()

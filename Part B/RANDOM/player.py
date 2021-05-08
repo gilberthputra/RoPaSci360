@@ -1,7 +1,5 @@
-from ADDITIONAL_PYLON.state import *
+from RANDOM.state import *
 from random import choice
-from ADDITIONAL_PYLON.heuristic import *
-from ADDITIONAL_PYLON.SMAB import *
 from math import inf
 from copy import deepcopy
 
@@ -22,9 +20,8 @@ class Player:
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
-        payoff, action = SMAB(self.game, mid_game, -inf, inf, 1)
-        print(action)
-        return action
+        possible = self.game._actions(self.game.player_1)
+        return choice(possible)
     
     def update(self, opponent_action, player_action):
         """

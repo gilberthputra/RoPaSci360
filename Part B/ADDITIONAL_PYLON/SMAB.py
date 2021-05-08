@@ -1,5 +1,5 @@
-from state import *
-from gametheory import *
+from ADDITIONAL_PYLON.state import *
+from ADDITIONAL_PYLON.gametheory import *
 import numpy as np
 import sys
 
@@ -33,11 +33,8 @@ def is_dominated(lower_bound, upper_bound):
 
 
 def SMAB(state, heuristic, alpha, beta, depth = MAX_DEPTH):
-    print("START")
-    print('DEPTH', depth)
     if depth == 0 :
-        evals = heuristic(state, state.player_1)
-        print("RETURN", evals, type(evals))
+        evals= heuristic(state, state.player_1)
         return (evals, None)
     
     max_player = state.player_1
@@ -45,7 +42,6 @@ def SMAB(state, heuristic, alpha, beta, depth = MAX_DEPTH):
 
     min_actions = state._actions(min_player)
     max_actions = state._actions(max_player)
-    print(max_actions)
 
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
     max_val = np.full((len(max_actions), len(min_actions)), beta)
@@ -55,7 +51,6 @@ def SMAB(state, heuristic, alpha, beta, depth = MAX_DEPTH):
     for A in range(len(max_actions)):
         for B in range(len(min_actions)):
             if not dominated[A][B]:
-                print(dominated[A][B])
                 next_state = deepcopy(state)
                 alpha_AB = min_val[A][B]
                 beta_AB = max_val[A][B]
@@ -66,37 +61,86 @@ def SMAB(state, heuristic, alpha, beta, depth = MAX_DEPTH):
                     evals = SMAB(next_state, heuristic, alpha_AB, alpha_AB + E, depth - 1)[0]
                     if evals < alpha_AB:
                         dominated[A] = 1
+                        print('row')
+                    else:
+                        dominated[:, B] = 1
+                        print('col')
+                else:
+                    evals = SMAB(next_state, heuristic, alpha_AB, beta_AB, depth - 1)[0]
+                    if evals < alpha_AB:
+                        dominated[A] = 1
+                        print('row')
+                    elif evals > beta_AB:
+                        dominated[:, B] = 1
+                        print('col')
+                    else:
+                        min_val[A][B] = max_val[A][B] = evals
+
+    res_dominated = np.where(dominated == 1)
+    
+    dominated_move_row = list(set([i[0] for i in list(zip(res_dominated[0]))]))
+    dominated_move_actions = [max_actions[m] for m in dominated_move_row]
+
+    for m in dominated_move_actions:
+        max_actions.remove(m)
+    min_val = np.delete(min_val, dominated_move_row, axis = 0)
+    distribution, payoff = solve_game(min_val)
+    best_action = max_actions[np.where(distribution == np.max(distribution))[0][0]]
+
+    return payoff, best_action
+
+def Backward(state, heuristic, depth = MAX_DEPTH): pass
+
+def SMAB_strat(state, heuristic, strat, alpha, beta, depth = MAX_DEPTH):
+    if depth == 0 :
+        evals, strat = heuristic(state, state.player_1, strategy = strat)
+        return (evals, None)
+    
+    max_player = state.player_1
+    min_player = state.player_2
+
+    min_actions = state._actions(min_player)
+    max_actions = state._actions(max_player)
+
+    min_val = np.full((len(max_actions), len(min_actions)), alpha)
+    max_val = np.full((len(max_actions), len(min_actions)), beta)
+
+    dominated = is_dominated(min_val, max_val)
+    
+    for A in range(len(max_actions)):
+        for B in range(len(min_actions)):
+            if dominated[A][B] == 0:
+                next_state = deepcopy(state)
+                alpha_AB = min_val[A][B]
+                beta_AB = max_val[A][B]
+
+                p1, p2 = next_state.apply_action(max_actions[A], min_actions[B])
+                next_state.update(p1, p2)
+                if alpha_AB > beta_AB:
+                    evals = SMAB_strat(next_state, heuristic, strat, alpha_AB, alpha_AB + E, depth - 1)[0]
+                    if evals < alpha_AB:
+                        dominated[A] = 1
                     else:
                         dominated[:, B] = 1
                 else:
-                    evals = SMAB(next_state, heuristic, alpha_AB, beta_AB, depth - 1)[0]
-                    print("alpha_AB", alpha_AB, type(alpha_AB))
-                    print("evals", evals, type(evals))
+                    evals = SMAB_strat(next_state, heuristic, strat, alpha_AB, beta_AB, depth - 1)[0]
                     if evals < alpha_AB:
                         dominated[A] = 1
                     elif evals > beta_AB:
                         dominated[:, B] = 1
                     else:
                         min_val[A][B] = max_val[A][B] = evals
-    print("END") 
+
     res_dominated = np.where(dominated == 1)
+    
     dominated_move_row = list(set([i[0] for i in list(zip(res_dominated[0]))]))
+    print(dominated_move_row)
     dominated_move_actions = [max_actions[m] for m in dominated_move_row]
 
-    print(min_val.shape)
     for m in dominated_move_actions:
         max_actions.remove(m)
     min_val = np.delete(min_val, dominated_move_row, axis = 0)
-    
-    print(dominated_move_row)
-    print(min_val.shape)
-    print(max_actions)
-    print(solve_game(min_val))
-    """for move in dominated_move:
-        max_actions.pop(move[0])
-        np.delete(min_val, move[0], axis = 0)"""
-
+    print(min_val)
+    print(dominated)
     return solve_game(min_val)[1], solve_game(min_val)
-
-def Backward(state, heuristic, depth = MAX_DEPTH): pass
-
+    
