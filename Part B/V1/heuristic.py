@@ -1,4 +1,4 @@
-from ADDITIONAL_PYLON.state import *
+from V1.state import *
 import numpy as np
 
 UPPER_MID = [(4, -2)]
@@ -289,4 +289,4 @@ def mid_game(game, player):
     f3 = total_tokens(game, player)
     f4 = save_throws(game, player)
     f5 = enemy_captured(game, player)
-    return (f1*5 + f2*8 + f3*8 + f4*0 + f5*10)
+    return (f1*9 + f2*12 + f3*15 + f4*1 + f5*15)
