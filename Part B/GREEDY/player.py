@@ -1,7 +1,7 @@
-from V1.state import *
+from GREEDY.state import *
 from random import choice
-from V1.heuristic import *
-from V1.SMAB import *
+from GREEDY.heuristic import *
+from GREEDY.SMAB import *
 from math import inf
 from copy import deepcopy
 

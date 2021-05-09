@@ -1,4 +1,4 @@
-from V1.state import *
+from GREEDY.state import *
 import numpy as np
 
 UPPER_MID = [(4, -2)]

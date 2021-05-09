@@ -1,5 +1,5 @@
-from V1.state import *
-from V1.gametheory import *
+from GREEDY.state import *
+from GREEDY.gametheory import *
 import numpy as np
 import sys
 
