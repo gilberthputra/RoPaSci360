@@ -149,6 +149,28 @@ def enemy_captured(game, player):
     player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
     return (NO_OF_TOKEN - len(player_2) - p2_throws) * 100 / 9
 
+def cost_to_allies(game, player):
+    player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
+
+    dist = []
+    for p1 in player_1:
+        for p2 in player_1:
+            if WHAT_BEATS[p2[0]] == p1[0]:
+                dist.append((p1, p2, distance(p1, p2)))
+    dist = np.array(dist)
+    shortest_dist = {}
+    for i in dist:
+        if i[0] not in shortest_dist:
+            shortest_dist[i[0]] = [i[-1], i[1]]
+        elif i[0] in shortest_dist:
+            if shortest_dist[i[0]][0] > i[-1]:
+                shortest_dist[i[0]] = [i[-1], i[1]]
+    total_distance = 0
+    for short in shortest_dist.values():
+        total_distance += short[0]
+    if total_distance:
+        return (8 - (total_distance / len(shortest_dist))) * 100 / 8
+    return 0
 #++++++++++++ EVALUATION ++++++++++++#
 def mid_game(game, player):
     
@@ -157,7 +179,8 @@ def mid_game(game, player):
     f3 = total_tokens(game, player)
     f4 = save_throws(game, player)
     f5 = enemy_captured(game, player)
-    return (f1*5 + f2*8 + f3*8 + f4*0 + f5*10)
+    f6 = cost_to_allies(game, player)
+    return (f1*12 + f2*15 + f3*20 + f4*2 + f5*20 + f6 * 0)
 
 
 #++++++++++++ DEPRECATED ++++++++++++#

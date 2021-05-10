@@ -290,9 +290,10 @@ class RoPaSci360:
     def apply_action(self, p1_move, p2_move):
         p1 = self.read_move(p1_move, self.player_1)
         p2 = self.read_move(p2_move, self.player_2)
-        p1, p1 = self.check_piece(p1, p1)
-        p2, p2 = self.check_piece(p2, p2)
-        p1, p2 = self.check_piece(p1, p2)
+        for i in range(9):
+            p1, p1 = self.check_piece(p1, p1)
+            p2, p2 = self.check_piece(p2, p2)
+            p1, p2 = self.check_piece(p1, p2)
         return p1, p2
 
     def update(self, player_1_pieces, player_2_pieces):

@@ -1,7 +1,7 @@
-from V1.state import *
+from ADDITIONAL_PYLON.state import *
 from random import choice
-from V1.heuristic import *
-from V1.SMAB import *
+from ADDITIONAL_PYLON.heuristic import *
+from ADDITIONAL_PYLON.adversarial import *
 from math import inf
 from copy import deepcopy
 
@@ -13,6 +13,9 @@ BOOK_2 = [('THROW', 'r', (-4, 4)), ('THROW', 'p', (-4, 3)),
         ('THROW', 's', (-3, 3)), ('THROW', 'r', (-4, 1)),
         ('THROW', 'p', (-4, 0)), ('THROW', 's', (-3, 0))]
 
+AG_BOOK_1 = [('THROW', 'r', (4, -2)), ('THROW', 'p', (3, -2)), 
+            ('THROW', 's', (3, -1)), ('THROW', 'r', (2, -1)), 
+            ('THROW', 'p', (1, -1)), ('THROW', 's', (1, 0))]
 
 class Player:
     def __init__(self, player):
@@ -35,7 +38,7 @@ class Player:
         if self.book: 
             return self.book.pop(0)
         else:
-            payoff, action = SMAB(self.game, mid_game, -inf, inf, 1)
+            payoff, action = SMAB_strat(self.game, mid_game, -inf, inf, 1)
             return action
     
     def update(self, opponent_action, player_action):
