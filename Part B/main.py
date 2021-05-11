@@ -25,7 +25,7 @@ def main():
         p1, p2 = game.apply_action(p1_act, p2_act)
         game.update(p1, p2)
     """
-    for i in range(50):
+    for i in range(15):
         if not game.done:
             p1_act = game._actions(game.player_1)
             p2_act = game._actions(game.player_2)
@@ -42,7 +42,7 @@ def main():
     #print(save_throws(game, game.player_1))
     #print(cost_to_allies(game, game.player_1))
     #print(targeted_throw(game, game.player_1))
-    #SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 1)
+    SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
     #start = time.perf_counter()
     #print(game.upper)
     #print(game.lower)
@@ -51,6 +51,6 @@ def main():
     #print(action)
     #end = time.perf_counter()
     #print('Time taken:', end - start)
-    payoff, action = double_oracle(game, mid_game, -inf, +inf, depth = 1)
-    print(payoff, action)
+    #payoff, action = double_oracle(game, greedy, -1000, +1000, depth = 1)
+    #print(payoff, action)
 main()

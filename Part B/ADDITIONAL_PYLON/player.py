@@ -14,8 +14,9 @@ BOOK_2 = [('THROW', 'r', (-4, 4)), ('THROW', 'p', (-4, 3)),
         ('THROW', 'p', (-4, 0)), ('THROW', 's', (-3, 0))]
 
 AG_BOOK_1 = [('THROW', 'r', (4, -2)), ('THROW', 'p', (3, -2)), 
-            ('THROW', 's', (3, -1)), ('THROW', 'r', (2, -1)), 
-            ('THROW', 'p', (1, -1)), ('THROW', 's', (1, 0))]
+            ('THROW', 's', (2, -1)), ('THROW', 'p', (1, 0)),
+            ('THROW', 'r', (0, 0)), ('THROW', 's', (-1, 0))]
+
 
 class Player:
     def __init__(self, player):
@@ -38,7 +39,7 @@ class Player:
         if self.book: 
             return self.book.pop(0)
         else:
-            payoff, action = SMAB_strat(self.game, mid_game, -inf, inf, 1)
+            payoff, action = SMAB(self.game, greedy, -10000, 10000, 1)
             return action
     
     def update(self, opponent_action, player_action):

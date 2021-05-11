@@ -171,6 +171,7 @@ def cost_to_allies(game, player):
     if total_distance:
         return (8 - (total_distance / len(shortest_dist))) * 100 / 8
     return 0
+
 #++++++++++++ EVALUATION ++++++++++++#
 def mid_game(game, player):
     
@@ -182,7 +183,14 @@ def mid_game(game, player):
     f6 = cost_to_allies(game, player)
     return (f1*12 + f2*15 + f3*20 + f4*2 + f5*20 + f6 * 0)
 
-
+def greedy(game, player):
+    f1 = cost_to_enemy(game, player)
+    f2 = cost_from_enemy(game, player)
+    f3 = total_tokens(game, player)
+    f4 = save_throws(game, player)
+    f5 = enemy_captured(game, player)
+    return (f1*15 + f2*12 + f3*15 + f4*1 + f5*15)
+    
 #++++++++++++ DEPRECATED ++++++++++++#
 
 def targeted_throw(game, player):
