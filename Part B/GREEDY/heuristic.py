@@ -11,6 +11,7 @@ LOWER_LEFT_REGION = [(-2, -2), (-2, -1), (-2, 0), (-3, -1), (-3, 0), (-3, 1), (-
 LOWER_RIGHT_REGION = [(-2, 2), (-2, 3), (-2, 4), (-3, 2), (-3, 3), (-3, 4), (-4, 3), (-4, 4)]
 LOWER_MID = [(-4, 2)]
 
+#++++++++++++ UTILITIES ++++++++++++#
 def distance(coord1, coord2):
     (s, r1, q1) = coord1
     (s, r2, q2) = coord2
@@ -30,65 +31,6 @@ def player_set(game, player):
     else:
         region = LOWER_MID + LOWER_LEFT_REGION + LOWER_RIGHT_REGION
         return game.lower, game.upper, game.lower_throws, game.upper_throws, region
-
-def advantage(game, player):
-    p1, p2, p1_throw, p2_throw, region = player_set(game, player)
-
-    captured_by_player = NO_OF_TOKEN - len(p2) - p2_throw
-    got_captured = NO_OF_TOKEN - len(p1) - p1_throw
-    return captured_by_player - got_captured
-
-def vulnerable(game, player):
-    p1, p2, p1_throw, p2_throw, region = player_set(game, player)
-
-    p1_s = {'r': 0, 'p': 0, 's':0}
-    for p in p1:
-        p1_s[p[0]] += 1
-    p2_s = {'r': 0, 'p': 0, 's':0}
-    for p in p2:
-        p2_s[p[0]] += 1
-    
-    score = 0
-    for s in p1_s:
-        if p2_s[WHAT_BEATS[s]] > p1_s[s] and p1_throw < p2_throw:
-            score -= 10
-        else:
-            score += 10
-    
-    return score
-
-def defend(game, player):
-    """
-    Idea: If each token are close together it may be said that it is easier to defend each other
-    and if the tokens doesnt go past the opponent's region we have more defend power. Having more 
-    throws than the opponent have significant defensive power, as we can just stomp them if they 
-    come to our throw region.
-    Measures the current state defend power.
-    - If each token piece is in defensive region increase score by 1 else -1
-    - If the distance between token does not pass the threshold increase score by 1 else -1.
-    - If player's throw is larger than opponent, higher defend power.
-    """
-    p1, p2, p1_throw, p2_throw, region = player_set(game, player)
-
-    region = region + MIDDLE_LEFT_REGION + CENTER_REGION + MIDDLE_RIGHT_REGION
-    
-    score = 0
-    for (s, r, q) in p1:
-        if (r, q) in region:
-            score += 1
-        else: score -= 1
-
-    threshold = overall_distance(p1, p1) // len(p1)
-
-    for t1 in p1:
-        for t2 in p1:
-            if distance(t1, t2) < threshold:
-                score += 1
-            else: score -= 1
-
-    score += (p1_throw - p2_throw)
-    
-    return score
 
 def check_region_advantage(region):
     score = 0
@@ -111,7 +53,21 @@ def check_region_advantage(region):
             score += 1
 
     return score
-        
+
+#++++++++++++ FEATURES ++++++++++++#
+def defend(game, player):
+    """
+    Idea: If each token are close together it may be said that it is easier to defend each other
+    and if the tokens doesnt go past the opponent's region we have more defend power. Having more
+    throws than the opponent have significant defensive power, as we can just stomp them if they
+    come to our throw region.
+    Measures the current state defend power.
+    - If each token piece is in defensive region increase score by 1 else -1
+    - If the distance between token does not pass the threshold increase score by 1 else -1.
+    - If player's throw is larger than opponent, higher defend power.
+    """
+    pass
+
 def attack(game, player):
     """
     The idea is to check each region player 1 and player 2 tokens. If in a region either player
@@ -122,83 +78,25 @@ def attack(game, player):
     then both player has no advantage over each other.
     The more advantage over the whole region, it can be said that it has more attack power than the other.
     """
-    p1, p2, p1_throw, p2_throw, _ = player_set(game, player)
-    score = 0
-    upper_left_mid = {'p1': [], 'p2':[]}
-    upper_right = {'p1': [], 'p2':[]}
-    middle_left = {'p1': [], 'p2':[]}
-    center = {'p1': [], 'p2':[]}
-    middle_right = {'p1': [], 'p2':[]}
-    lower_left_mid = {'p1': [], 'p2':[]}
-    lower_right = {'p1': [], 'p2':[]}
+    pass
 
-    for (s, r, q) in p1:
-        if (r, q) in UPPER_LEFT_REGION + UPPER_MID: 
-            upper_left_mid['p1'].append((s, r, q))
-        elif (r, q) in UPPER_RIGHT_REGION: 
-            upper_right['p1'].append((s, r, q))
-        elif (r, q) in MIDDLE_LEFT_REGION: 
-            middle_left['p1'].append((s, r, q))
-        elif (r, q) in CENTER_REGION: 
-            center['p1'].append((s, r, q))
-        elif (r, q) in MIDDLE_RIGHT_REGION: 
-            middle_right['p1'].append((s, r, q))
-        elif (r, q) in LOWER_LEFT_REGION + LOWER_MID: 
-            lower_left_mid['p1'].append((s, r, q))
-        elif (r, q) in LOWER_RIGHT_REGION: 
-            lower_right['p1'].append((s, r, q))
-    
-    for (s, r, q) in p2:
-        if (r, q) in UPPER_LEFT_REGION + UPPER_MID: 
-            upper_left_mid['p2'].append((s, r, q))
-        elif (r, q) in UPPER_RIGHT_REGION: 
-            upper_right['p2'].append((s, r, q))
-        elif (r, q) in MIDDLE_LEFT_REGION: 
-            middle_left['p2'].append((s, r, q))
-        elif (r, q) in CENTER_REGION: 
-            center['p2'].append((s, r, q))
-        elif (r, q) in MIDDLE_RIGHT_REGION: 
-            middle_right['p2'].append((s, r, q))
-        elif (r, q) in LOWER_LEFT_REGION + LOWER_MID: 
-            lower_left_mid['p2'].append((s, r, q))
-        elif (r, q) in LOWER_RIGHT_REGION: 
-            lower_right['p2'].append((s, r, q))
-    
-    for i in [upper_left_mid, upper_right, middle_left, center, middle_right, lower_left_mid, lower_right]:
-        score += check_region_advantage(i)
-    return score
-    
-def retreat(game, player): 
+def retreat(game, player):
     """
     The idea is to run back from opposing tokens when we have a disadvantage. or even gather
     together. To defend each other.
     """
     pass
 
-def test(game, player):
-    p1, p2, p1_throw, p2_throw, region = player_set(game, player)
-    p1_s = {'r': 0, 'p': 0, 's': 0}
-    p2_s = {'r': 0, 'p': 0, 's': 0}
-    score = 0
-    for p1_t in p1:
-        p1_s[p1_t[0]] += 1
-    for p2_t in p2:
-        p2_s[p2_t[0]] += 1
-    
-    for s in p1_s:
-        score += p2_s[WHAT_BEATS[s]] - p1_s[s] 
-    return score * 10
-
 def cost_to_enemy(game, player):
     player_1, player_2, p1_throw, p2_throw, _ = player_set(game, player)
-    
+
     dist = []
     for p1 in player_1:
         for p2 in player_2:
             if WHAT_BEATS[p2[0]] == p1[0]:
                 dist.append((p1, p2, distance(p1, p2)))
     dist = np.array(dist)
-  
+
     shortest_dist = {}
     for i in dist:
         if i[0] not in shortest_dist:
@@ -247,6 +145,54 @@ def save_throws(game, player):
 
     return (p1_throws) * 100 / NO_OF_TOKEN
 
+def enemy_captured(game, player):
+    player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
+    return (NO_OF_TOKEN - len(player_2) - p2_throws) * 100 / 9
+
+def cost_to_allies(game, player):
+    player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
+
+    dist = []
+    for p1 in player_1:
+        for p2 in player_1:
+            if WHAT_BEATS[p2[0]] == p1[0]:
+                dist.append((p1, p2, distance(p1, p2)))
+    dist = np.array(dist)
+    shortest_dist = {}
+    for i in dist:
+        if i[0] not in shortest_dist:
+            shortest_dist[i[0]] = [i[-1], i[1]]
+        elif i[0] in shortest_dist:
+            if shortest_dist[i[0]][0] > i[-1]:
+                shortest_dist[i[0]] = [i[-1], i[1]]
+    total_distance = 0
+    for short in shortest_dist.values():
+        total_distance += short[0]
+    if total_distance:
+        return (8 - (total_distance / len(shortest_dist))) * 100 / 8
+    return 0
+
+#++++++++++++ EVALUATION ++++++++++++#
+def mid_game(game, player):
+
+    f1 = cost_to_enemy(game, player)
+    f2 = cost_from_enemy(game, player)
+    f3 = total_tokens(game, player)
+    f4 = save_throws(game, player)
+    f5 = enemy_captured(game, player)
+    f6 = cost_to_allies(game, player)
+    return (f1*12 + f2*15 + f3*20 + f4*2 + f5*20 + f6 * 0)
+
+def greedy(game, player):
+    f1 = cost_to_enemy(game, player)
+    f2 = cost_from_enemy(game, player)
+    f3 = total_tokens(game, player)
+    f4 = save_throws(game, player)
+    f5 = enemy_captured(game, player)
+    return (f1*15 + f2*12 + f3*15 + f4*1 + f5*15)
+
+#++++++++++++ DEPRECATED ++++++++++++#
+
 def targeted_throw(game, player):
     player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
     in_region = []
@@ -277,16 +223,3 @@ def targeted_throw(game, player):
             action = ("THROW", WHAT_BEATS[token[0]], (token[1], token[2]))
             return action
     return 0
-
-def enemy_captured(game, player):
-    player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
-    return (NO_OF_TOKEN - len(player_2) - p2_throws) * 100 / 9
-
-def mid_game(game, player):
-    
-    f1 = cost_to_enemy(game, player)
-    f2 = cost_from_enemy(game, player)
-    f3 = total_tokens(game, player)
-    f4 = save_throws(game, player)
-    f5 = enemy_captured(game, player)
-    return (f1*9 + f2*12 + f3*15 + f4*1 + f5*15)
