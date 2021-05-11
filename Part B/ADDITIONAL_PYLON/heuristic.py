@@ -55,38 +55,6 @@ def check_region_advantage(region):
     return score
 
 #++++++++++++ FEATURES ++++++++++++#
-def defend(game, player):
-    """
-    Idea: If each token are close together it may be said that it is easier to defend each other
-    and if the tokens doesnt go past the opponent's region we have more defend power. Having more 
-    throws than the opponent have significant defensive power, as we can just stomp them if they 
-    come to our throw region.
-    Measures the current state defend power.
-    - If each token piece is in defensive region increase score by 1 else -1
-    - If the distance between token does not pass the threshold increase score by 1 else -1.
-    - If player's throw is larger than opponent, higher defend power.
-    """
-    pass
-
-def attack(game, player):
-    """
-    The idea is to check each region player 1 and player 2 tokens. If in a region either player
-    has more tokens than the other and their token can beat the other, then the player can be said
-    to have advantage over the player in that region.
-    If player 1 has 1 rock and 1 paper token in a region and player 2 has 1 scissor token, then
-    player 1 has overall advantage in that region. If both player have the same tokens symbol,
-    then both player has no advantage over each other.
-    The more advantage over the whole region, it can be said that it has more attack power than the other.
-    """
-    pass
-    
-def retreat(game, player): 
-    """
-    The idea is to run back from opposing tokens when we have a disadvantage. or even gather
-    together. To defend each other.
-    """
-    pass
-
 def cost_to_enemy(game, player):
     player_1, player_2, p1_throw, p2_throw, _ = player_set(game, player)
     
@@ -172,6 +140,17 @@ def cost_to_allies(game, player):
         return (8 - (total_distance / len(shortest_dist))) * 100 / 8
     return 0
 
+def balance_token(game, player):
+    player_1, player_2, p1_throws, p2_throws, _ = player_set(game, player)
+
+    p1 = {'r': 0, 'p': 0, 's': 0}
+    p2 = {'r': 0, 'p': 0, 's': 0}
+    for i in player_1:
+        p1[i[0]] += 1
+    for j in player_2:
+        p2[j[0]] += 1
+    
+    
 #++++++++++++ EVALUATION ++++++++++++#
 def mid_game(game, player):
     
@@ -190,7 +169,7 @@ def greedy(game, player):
     f4 = save_throws(game, player)
     f5 = enemy_captured(game, player)
     return (f1*15 + f2*12 + f3*15 + f4*1 + f5*15)
-    
+
 #++++++++++++ DEPRECATED ++++++++++++#
 
 def targeted_throw(game, player):

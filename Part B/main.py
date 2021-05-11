@@ -24,7 +24,7 @@ def main():
         p2_act = game._actions(game.player_2)
         p1, p2 = game.apply_action(p1_act, choice(p2_act))
         game.update(p1, p2)
-    """
+    
     for i in range(15):
         if not game.done:
             p1_act = game._actions(game.player_1)
@@ -33,18 +33,16 @@ def main():
             c2 = choice(p2_act)
             p1, p2 = game.apply_action(c1, c2)
             game.update(p1, p2)
-    """
-    game.promising_actions(game.player_1)
-    game.promising_actions(game.player_2)
-    print(game.done)      
-    print(game.upper, game.upper_throws)
-    print(game.lower, game.lower_throws)
+    
+    balance_token(game, game.player_1)
+
     #print(cost_to_enemy(game, game.player_1))
     #print(cost_from_enemy(game, game.player_1))
     #print(save_throws(game, game.player_1))
     #print(cost_to_allies(game, game.player_1))
     #print(targeted_throw(game, game.player_1))
-    SMAB(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
+    if game.upper_throws == 0:
+        SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
     #start = time.perf_counter()
     #print(game.upper)
     #print(game.lower)
