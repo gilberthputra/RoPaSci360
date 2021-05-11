@@ -180,7 +180,7 @@ def conservative(game, player):
     f4 = save_throws(game, player)
     f5 = enemy_captured(game, player)
     f6 = balance_token(game, player)
-    return (f1*12 + f2*15 + f3*20 + f4*2 + f5*20 + f6 * 5)
+    return (f1*12 + f2*15 + f3*20 + f4*2 + f5*20 + f6 * 5) / (12+15+20+2+20+5)
 
 def greedy(game, player):
     """
@@ -193,7 +193,7 @@ def greedy(game, player):
     f3 = total_tokens(game, player)
     f4 = save_throws(game, player)
     f5 = enemy_captured(game, player)
-    return (f1*15 + f2*12 + f3*15 + f4*1 + f5*15)
+    return (f1*15 + f2*12 + f3*15 + f4*1 + f5*15) / (15+12+15+1+15)
 
 """
 CURRENT BEST WEIGHTS

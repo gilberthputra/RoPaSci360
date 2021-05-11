@@ -38,17 +38,24 @@ class Player:
         """
         self.game = RoPaSci360(player = player)
         self.book = BOOK_1 if player == 'upper' else BOOK_2
+        self.increment = 0
 
     def action(self):
         """
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
+        if self.game.player_1 == 'upper':
+            throw = self.game.upper_throws
+        else:
+            throw = self.game.lower_throws
         if self.book:
             return self.book.pop(0)
-        else:
-            payoff, action = SMAB_cell_ordering(self.game, greedy, -10000, 10000, 1)
-            return action
+    
+        _, action = SMAB_cell_ordering(self.game, conservative, -10000, 10000, depth = 1)
+    
+        return action
+      
 
     def update(self, opponent_action, player_action):
         """

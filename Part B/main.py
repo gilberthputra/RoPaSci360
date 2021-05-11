@@ -42,7 +42,7 @@ def main():
     #print(cost_to_allies(game, game.player_1))
     #print(targeted_throw(game, game.player_1))
     #if game.upper_throws == 0:
-    #    SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
+    #SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
     #start = time.perf_counter()
     #print(game.upper)
     #print(game.lower)
@@ -51,6 +51,7 @@ def main():
     #print(action)
     #end = time.perf_counter()
     #print('Time taken:', end - start)
-    #payoff, action = double_oracle(game, greedy, -1000, +1000, depth = 1)
+    payoff, action = double_oracle(game, greedy, -10000, +10000, depth = 1)
+    print(payoff, action)
     #print(payoff, action)
 main()

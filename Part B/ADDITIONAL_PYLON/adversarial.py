@@ -59,7 +59,7 @@ def dominating_B(min_val, max_val, min_actions, dominated_col, A, B):
 #+++++++++++++++ S M A B +++++++++++++++#
 LOWER_BOUND = -10000
 UPPER_BOUND = 10000
-SKIPPING    = 1
+SKIPPING    = 4
 
 def cal_alpha_AB(min_val, max_val, max_actions, dominated, A, B, s = SKIPPING): 
     if dominating_A(min_val, max_val, max_actions, dominated, A, B) and B >= s:
@@ -206,8 +206,6 @@ def SMAB_cell_ordering(state, heuristic, alpha, beta, depth = MAX_DEPTH):
 
     min_actions = state.promising_actions(min_player)
     max_actions = state.promising_actions(max_player)
-    shuffle(min_actions)
-    shuffle(max_actions)
 
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
     max_val = np.full((len(max_actions), len(min_actions)), beta)
@@ -245,14 +243,16 @@ def SMAB_cell_ordering(state, heuristic, alpha, beta, depth = MAX_DEPTH):
                     dominated_col.append(B)
                 else:
                     min_val[A][B] = max_val[A][B] = evals
-
-    for m in dominated_row:
-        max_actions.remove(m)
+    
+    dominated_actions = [max_actions[m] for m in dominated_row]
+    for a in dominated_actions:
+        max_actions.remove(a)
     min_val = np.delete(min_val, dominated_row, axis = 0)
-    distribution, payoff = solve_game(min_val)
-    best_action = max_actions[np.where(distribution == np.max(distribution))[0][0]]
-
-    return payoff, best_action
+    if min_val.size != 0:
+        distribution, payoff = solve_game(min_val)
+        best_action = max_actions[np.where(distribution == np.max(distribution))[0][0]]
+        return payoff, best_action
+    return None, None
     
 #++++++++++++++ DOUBLE ORACLE ++++++++++++++# (DEPRECATED)
 """
@@ -262,8 +262,11 @@ NOT EVEN SURE IF THIS IS WORKING
 LIKE IT MEANT TO.
 """
 def compute_NE(min_actions, max_actions, min_val, max_val):
-    min_val = np.reshape(np.array(min_val), (len(max_actions), len(min_actions)))
-    max_val = np.reshape(np.array(max_val), (len(max_actions), len(min_actions)))
+    print(min_val)
+    print(max_val)
+    print(len(max_actions), len(min_actions))
+    min_val = np.reshape(np.array(min_val), (-1, len(min_actions)))
+    max_val = np.reshape(np.array(max_val), (-1, len(min_actions)))
     dist_1, payoff_1 = solve_game(min_val)
     dist_2, payoff_2 = solve_game(max_val)
 
@@ -345,8 +348,8 @@ def double_oracle(state, heuristic, alpha, beta, depth):
     if alpha_beta(state, heuristic, state.player_1, alpha, beta, depth*2) == min_AB:
         return (min_AB, None)
 
-    p1_act = state._actions(state.player_1)
-    p2_act = state._actions(state.player_2)
+    p1_act = state.promising_actions(state.player_1)
+    p2_act = state.promising_actions(state.player_2)
     
     max_set = [choice(p1_act)]
     min_set = [choice(p2_act)]
@@ -356,7 +359,6 @@ def double_oracle(state, heuristic, alpha, beta, depth):
     next_state.update(p1, p2)
     min_val = [alpha_beta(next_state, heuristic, state.player_2, alpha, beta, depth*2)]
     max_val = [alpha_beta(next_state, heuristic, state.player_1, alpha, beta, depth*2)]
-    print("PASS THIS 1")
     while alpha <= beta:
         for x in range(len(max_set)):
             for y in range(len(min_set)):
@@ -366,12 +368,14 @@ def double_oracle(state, heuristic, alpha, beta, depth):
                     p1, p2 = state_ij.apply_action(max_set[0], min_set[0])
                     state_ij.update(p1, p2)
                     val, _ = double_oracle(state_ij, heuristic, min_val[i], max_val[i], depth - 1)
-                    print("PASS THIS 2")
+                    print("PASS THIS 1")
                     min_val[i] = max_val[i] = val
                 val, max_dist, min_dist = compute_NE(min_set, max_set, min_val, max_val)
-                (br_i, v_max) = BR_max(state, heuristic, alpha, beta, min_dist, depth)
-                (br_j, v_min) = BR_max(state, heuristic, alpha, beta, max_dist, depth)
-                print("PASS THIS 7")
+                print("PASS THIS 2")
+                (br_i, v_max) = BR_max(state, heuristic, alpha, beta, min_dist, min_set, depth)
+                print("PASS THIS 4")
+                (br_j, v_min) = BR_min(state, heuristic, alpha, beta, max_dist, max_set, depth)
+                print("PASS THIS 6")
                 if br_i == None:
                     return alpha
                 elif br_j == None:
@@ -379,16 +383,17 @@ def double_oracle(state, heuristic, alpha, beta, depth):
                 alpha = max(alpha, v_min)
                 beta = min(beta, v_max)
                 max_set.append(br_i)
+                max_val.append(alpha)
                 min_set.append(br_j)
-    print("PASS THIS 8")
-    return val, max_set
+                min_val.append(beta)
+    print("PASS THIS 7")
+    return val, choice(max_set)
 
-def BR_max(state, heuristic, alpha, beta, dist, depth):
+def BR_max(state, heuristic, alpha, beta, dist, min_actions, depth):
     br_val = alpha
     br = None
 
-    max_actions = state._actions(state.player_1)
-    min_actions = state._actions(state.player_2)
+    max_actions = state.promising_actions(state.player_1)
     # Initialize pessimistic and optimistic bound
     min_val = np.zeros((len(max_actions), len(min_actions)))
     max_val = np.zeros((len(max_actions), len(min_actions)))
@@ -401,30 +406,24 @@ def BR_max(state, heuristic, alpha, beta, dist, depth):
 
             min_val[A][B] = alpha_beta(next_state, heuristic, state.player_2, alpha, beta, depth*2)
             max_val[A][B] = alpha_beta(next_state, heuristic, state.player_1, alpha, beta, depth*2)
-            print("PASS THIS 3")
-            print(B)
-            print(A)
-            print(dist[B])
-            print(min_val[A][B], max_val[A][B])
             if dist[B] > 0 and min_val[A][B] < max_val[A][B]:
                 min_val_t = max(min_val[A][B], br_val - (sum(dist) - dist[B])*max_val[A][B])
                 if min_val_t > max_val[A][B]:
                     continue
                 else:
                     val, _ = double_oracle(next_state, heuristic, alpha, beta, depth - 1)
-                    print("PASS THIS 4")
+                    print("PASS THIS 3")
                     min_val[A][B] = max_val[A][B] = val 
-            if sum(dist) * val >= br_val:
+            if val and sum(dist) * val >= br_val:
                 br = max_actions[A]
                 br_val = sum(dist) * val  
     return (br, br_val)
 
-def BR_min(state, heuristic, alpha, beta, dist, depth):
+def BR_min(state, heuristic, alpha, beta, dist, max_actions, depth):
     br_val = alpha
     br = None
 
-    max_actions = state._actions(state.player_1)
-    min_actions = state._actions(state.player_2)
+    min_actions = state.promising_actions(state.player_2)
     # Initialize pessimistic and optimistic bound
     min_val = np.zeros((len(max_actions), len(min_actions)))
     max_val = np.zeros((len(max_actions), len(min_actions)))
@@ -437,14 +436,13 @@ def BR_min(state, heuristic, alpha, beta, dist, depth):
 
             min_val[A][B] = alpha_beta(next_state, heuristic, state.player_2, alpha, beta, depth*2)
             max_val[A][B] = alpha_beta(next_state, heuristic, state.player_1, alpha, beta, depth*2)
-            print("PASS THIS 5")
             if dist[A] > 0 and min_val[A][B] < max_val[A][B]:
                 min_val_t = max(min_val[A][B], br_val - (sum(dist) - dist[A])*max_val[A][B])
                 if min_val_t > max_val[A][B]:
                     continue
                 else:
                     val, _ = double_oracle(next_state, heuristic, alpha, beta, depth - 1)
-                    print("PASS THIS 6")
+                    print("PASS THIS 5")
                     min_val[A][B] = max_val[A][B] = val
             if sum(dist) * val >= br_val:
                 br = max_actions[A]
