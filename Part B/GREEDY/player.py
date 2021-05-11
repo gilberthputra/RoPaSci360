@@ -39,7 +39,7 @@ class Player:
         if self.book:
             return self.book.pop(0)
         else:
-            payoff, action = SMAB(self.game, greedy, -10000, 10000, 1)
+            payoff, action = SMAB_cell_ordering(self.game, greedy, -10000, 10000, 1)
             return action
 
     def update(self, opponent_action, player_action):
@@ -54,3 +54,8 @@ class Player:
         print('player 2:', opponent_action)
         p1, p2 = self.game.apply_action(player_action, opponent_action)
         self.game.update(p1, p2)
+"""
+win 4
+draw 2
+lose 4
+"""

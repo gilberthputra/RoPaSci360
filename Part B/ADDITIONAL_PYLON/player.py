@@ -17,6 +17,10 @@ AG_BOOK_1 = [('THROW', 'r', (4, -2)), ('THROW', 'p', (3, -2)),
             ('THROW', 's', (2, -1)), ('THROW', 'p', (1, 0)),
             ('THROW', 'r', (0, 0)), ('THROW', 's', (-1, 0))]
 
+AG_BOOK_2 = [('THROW', 'r', (-4, 2)), ('THROW', 'p', (-3, 2)),
+            ('THROW', 's', (-2, 1)), ('THROW', 'p', (-1, 0)),
+            ('THROW', 'r', (0, 0)), ('THROW', 's', (1, 0))]
+
 
 class Player:
     def __init__(self, player):
@@ -29,7 +33,7 @@ class Player:
         as Lower).
         """
         self.game = RoPaSci360(player = player)
-        self.book = AG_BOOK_1 if player == 'upper' else BOOK_2
+        self.book = AG_BOOK_1 if player == 'upper' else AG_BOOK_2
 
     def action(self):
         """
@@ -54,3 +58,9 @@ class Player:
         print('player 2:', opponent_action)
         p1, p2 = self.game.apply_action(player_action, opponent_action)
         self.game.update(p1, p2)
+
+"""
+win 3
+draw 1
+lose
+"""

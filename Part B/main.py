@@ -41,8 +41,8 @@ def main():
     #print(save_throws(game, game.player_1))
     #print(cost_to_allies(game, game.player_1))
     #print(targeted_throw(game, game.player_1))
-    if game.upper_throws == 0:
-        SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
+    #if game.upper_throws == 0:
+    #    SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
     #start = time.perf_counter()
     #print(game.upper)
     #print(game.lower)

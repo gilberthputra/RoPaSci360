@@ -206,8 +206,8 @@ def SMAB_cell_ordering(state, heuristic, alpha, beta, depth = MAX_DEPTH):
 
     min_actions = state.promising_actions(min_player)
     max_actions = state.promising_actions(max_player)
-    #shuffle(min_actions)
-    #shuffle(max_actions)
+    shuffle(min_actions)
+    shuffle(max_actions)
 
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
     max_val = np.full((len(max_actions), len(min_actions)), beta)
