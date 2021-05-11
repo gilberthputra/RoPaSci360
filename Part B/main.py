@@ -10,7 +10,7 @@ import time
 def main():
     game = RoPaSci360(player = 'upper')
 
-    """
+    
     book_1 = [('THROW', 'r', (4, -4)), ('THROW', 'p', (4, -3)), ('THROW', 's', (3, -3)),
             ('THROW', 'r', (4, -1)), ('THROW', 'p', (4, 0)), ('THROW', 's', (3, 0))]
     book_2 = [('THROW', 'r', (-4, 4)), ('THROW', 'p', (-4, 3)), 
@@ -21,8 +21,8 @@ def main():
             ('THROW', 'p', (1, -1)), ('THROW', 's', (1, 0))]
     while book_1:
         p1_act = book_1.pop(0)
-        p2_act = book_2.pop(0)
-        p1, p2 = game.apply_action(p1_act, p2_act)
+        p2_act = game._actions(game.player_2)
+        p1, p2 = game.apply_action(p1_act, choice(p2_act))
         game.update(p1, p2)
     """
     for i in range(15):
@@ -33,7 +33,9 @@ def main():
             c2 = choice(p2_act)
             p1, p2 = game.apply_action(c1, c2)
             game.update(p1, p2)
-    
+    """
+    game.promising_actions(game.player_1)
+    game.promising_actions(game.player_2)
     print(game.done)      
     print(game.upper, game.upper_throws)
     print(game.lower, game.lower_throws)
@@ -42,7 +44,7 @@ def main():
     #print(save_throws(game, game.player_1))
     #print(cost_to_allies(game, game.player_1))
     #print(targeted_throw(game, game.player_1))
-    SMAB_cell_ordering(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
+    SMAB(game, mid_game, alpha = -10000, beta = 10000,depth = 2)
     #start = time.perf_counter()
     #print(game.upper)
     #print(game.lower)

@@ -307,6 +307,27 @@ class RoPaSci360:
         self.turn += 1
         self._invincible()
         self.done = self.end_game()
+
+    def promising_actions(self, player):
+        if player == self.player_1:
+            p1 = self.player_1
+            p2 = self.player_2
+        else:
+            p1 = self.player_2
+            p2 = self.player_1
+        p1_actions = self._actions(p1)
+        promising = list()
+        for act in p1_actions:
+            if act[0] == 'THROW':
+                token = self.find_token(act[-1], p2)
+                if token != None and WHAT_BEATS[token[0]] == act[1]:
+                    promising.append(act)
+            else:
+                promising.append(act)
+
+        return promising
+        
+
         
 
 """     

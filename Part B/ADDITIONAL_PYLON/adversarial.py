@@ -96,8 +96,8 @@ def SMAB(state, heuristic, alpha, beta, depth = MAX_DEPTH):
     max_player = state.player_1
     min_player = state.player_2
 
-    min_actions = state._actions(min_player)
-    max_actions = state._actions(max_player)
+    min_actions = state.promising_actions(min_player)
+    max_actions = state.promising_actions(max_player)
     #shuffle(min_actions)
     #shuffle(max_actions)
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
@@ -154,10 +154,10 @@ def SMAB_v1(state, heuristic, alpha, beta, depth = MAX_DEPTH):
     max_player = state.player_1
     min_player = state.player_2
 
-    min_actions = state._actions(min_player)
-    max_actions = state._actions(max_player)
-    shuffle(min_actions)
-    shuffle(max_actions)
+    min_actions = state.promising_actions(min_player)
+    max_actions = state.promising_actions(max_player)
+    #shuffle(min_actions)
+    #shuffle(max_actions)
 
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
     max_val = np.full((len(max_actions), len(min_actions)), beta)
@@ -204,10 +204,10 @@ def SMAB_cell_ordering(state, heuristic, alpha, beta, depth = MAX_DEPTH):
     max_player = state.player_1
     min_player = state.player_2
 
-    min_actions = state._actions(min_player)
-    max_actions = state._actions(max_player)
-    shuffle(min_actions)
-    shuffle(max_actions)
+    min_actions = state.promising_actions(min_player)
+    max_actions = state.promising_actions(max_player)
+    #shuffle(min_actions)
+    #shuffle(max_actions)
 
     min_val = np.full((len(max_actions), len(min_actions)), alpha)
     max_val = np.full((len(max_actions), len(min_actions)), beta)
