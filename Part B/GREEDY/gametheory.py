@@ -58,6 +58,7 @@ def solve_game(V, maximiser=True, rowplayer=True):
         np.ones(n),
         A_ub=-Vpos,
         b_ub=-np.ones(m),
+        options = {'tol': 1e-8}
     )
     if res.status:
         raise OptimisationError(res.message) # TODO: propagate whole result
