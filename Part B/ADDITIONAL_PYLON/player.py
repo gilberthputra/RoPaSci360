@@ -21,9 +21,11 @@ AG_BOOK_2 = [('THROW', 'r', (-4, 2)), ('THROW', 'p', (-3, 2)),
             ('THROW', 's', (-2, 1)), ('THROW', 'p', (-1, 0)),
             ('THROW', 'r', (0, 0)), ('THROW', 's', (1, 0))]
 
-BOOK_3 = [("THROW", 'r', (4, -4)), ("THROW", 's', (4, 0)), ("THROW", 'p', (3, -4)),
-         ("THROW", 'p', (3, 1)), ("THROW", 's', (2, -4)), ("THROW", 'r', (2, 2))]
-BOOK_4 = [("THROW", 'r', (-4, 4)), ("THROW", 'p', (-4, 2)), ("THROW", 's', (-4, 0))]
+BOOK_4 = [('THROW', 'r', (4, -4)), ('THROW', 'p', (4, -3)),
+        ('THROW', 's', (3, -3))]
+
+BOOK_5 = [('THROW', 'r', (-4, 4)), ('THROW', 'p', (-4, 3)),
+        ('THROW', 's', (-3, 3))]
 
 
 class Player:
@@ -38,24 +40,18 @@ class Player:
         """
         self.game = RoPaSci360(player = player)
         self.book = BOOK_1 if player == 'upper' else BOOK_2
-        self.increment = 0
 
     def action(self):
         """
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
-        if self.game.player_1 == 'upper':
-            throw = self.game.upper_throws
-        else:
-            throw = self.game.lower_throws
         if self.book:
             return self.book.pop(0)
-    
-        _, action = SMAB_cell_ordering(self.game, conservative, -10000, 10000, depth = 1)
-    
-        return action
-      
+
+        _, action_1 = SMAB_cell_ordering(self.game, conservative, -10000, 10000, depth = 1)
+        return action_1
+
 
     def update(self, opponent_action, player_action):
         """
@@ -69,9 +65,3 @@ class Player:
         print('player 2:', opponent_action)
         p1, p2 = self.game.apply_action(player_action, opponent_action)
         self.game.update(p1, p2)
-
-"""
-win 3
-draw 1
-lose
-"""

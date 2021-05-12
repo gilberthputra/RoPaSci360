@@ -17,6 +17,9 @@ AG_BOOK_1 = [('THROW', 'r', (4, -2)), ('THROW', 'p', (3, -2)),
             ('THROW', 's', (2, -1)), ('THROW', 'p', (1, 0)),
             ('THROW', 'r', (0, 0)), ('THROW', 's', (-1, 0))]
 
+AG_BOOK_2 = [('THROW', 'r', (-4, 2)), ('THROW', 'p', (-3, 2)),
+            ('THROW', 's', (-2, 1)), ('THROW', 'p', (-1, 0)),
+            ('THROW', 'r', (0, 0)), ('THROW', 's', (1, 0))]
 
 class Player:
     def __init__(self, player):
